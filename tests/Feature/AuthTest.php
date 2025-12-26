@@ -6,10 +6,20 @@ use Tests\TestCase;
 use App\Models\User;
 use Laravel\Sanctum\Sanctum;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Session\Middleware\StartSession;
+
 
 class AuthTest extends TestCase
 {
     use RefreshDatabase;
+
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->withoutMiddleware(StartSession::class);
+    }
 
     public function test_user_can_register(): void
     {
@@ -76,5 +86,57 @@ class AuthTest extends TestCase
         $response
             ->assertStatus(422)
             ->assertJsonValidationErrors('email');
+    }
+
+    public function test_me_requires_authentication(): void
+    {
+        $response = $this->getJson('/api/auth/me');
+
+        $response
+            ->assertStatus(401)
+            ->assertJson([
+                'message' => 'Unauthenticated.',
+            ]);
+    }
+
+    public function test_me_returns_authenticated_user(): void
+    {
+        $user = User::factory()->create();
+        $token = $user->createToken('api-token')->plainTextToken;
+
+        $this->withHeader('Authorization', "Bearer {$token}")
+            ->getJson('/api/auth/me')
+            ->assertStatus(200)
+            ->assertJsonPath('id', $user->id)
+            ->assertJsonPath('email', $user->email);
+    }
+
+
+    public function test_user_can_logout(): void
+    {
+        $user = User::factory()->create();
+        $token = $user->createToken('api-token')->plainTextToken;
+
+        $this->withHeader('Authorization', "Bearer {$token}")
+            ->postJson('/api/auth/logout')
+            ->assertStatus(200)
+            ->assertJson([
+                'message' => 'Logged out',
+            ]);
+    }
+
+    public function test_token_is_invalid_after_logout(): void
+    {
+        $user = User::factory()->create();
+        $token = $user->createToken('api-token')->plainTextToken;
+
+
+        $this->withHeader('Authorization', "Bearer {$token}")
+            ->postJson('/api/auth/logout')
+            ->assertStatus(200);
+
+        $this->withHeader('Authorization', "Bearer {$token}")
+            ->getJson('/api/auth/me')
+            ->assertStatus(401);
     }
 }
