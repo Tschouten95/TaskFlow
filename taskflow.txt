@@ -1,0 +1,116 @@
+🧩 Project Request: “TaskFlow” — A Team Task Management API
+
+Client brief:
+
+“We need a backend API for a lightweight team task management app called TaskFlow. Each team has multiple users, and each user can create, assign, and track tasks. We’ll later build a frontend on top of your API, so for now, focus purely on the backend.”
+
+🎯 Core Requirements
+1. Authentication & Authorization
+
+Implement JWT authentication (e.g., using Laravel Sanctum or Passport).
+
+Endpoints for:
+
+POST /register — register a new user
+
+POST /login — authenticate and get token
+
+POST /logout — revoke token
+
+2. Teams
+
+Users can create and join teams.
+
+A team can have many users.
+
+Only the team owner can remove members.
+
+Endpoints:
+
+POST /teams — create a team
+
+POST /teams/{team}/members — invite/add a user
+
+DELETE /teams/{team}/members/{user} — remove a user
+
+GET /teams — list teams the user is part of
+
+3. Tasks
+
+Each task belongs to a team and is assigned to a user (optional).
+
+A task has: title, description, status (todo, in_progress, done), priority, due_date.
+
+Endpoints:
+
+GET /teams/{team}/tasks — list all tasks in a team
+
+POST /teams/{team}/tasks — create a task
+
+PUT /tasks/{task} — update a task
+
+DELETE /tasks/{task} — delete a task
+
+PATCH /tasks/{task}/status — change status
+
+4. Notifications (Bonus Challenge)
+
+When a task is assigned to a user, send them an in-app notification (store in DB).
+
+Endpoint: GET /notifications — list unread notifications.
+
+5. Extras (Stretch Goals)
+
+Use API Resources for clean JSON responses.
+
+Add validation using Form Requests.
+
+Write Feature Tests for main endpoints.
+
+Add API rate limiting and handle unauthorized access properly.
+
+Deploy to a free platform like Render, Railway, or Vercel (with Laravel API).
+
+📁 Suggested Folder Structure
+app/
+  Http/
+    Controllers/
+      AuthController.php
+      TeamController.php
+      TaskController.php
+
+      NotificationController.php
+    Requests/
+      CreateTeamRequest.php
+      CreateTaskRequest.php
+  Models/
+      User.php
+      Team.php
+      Task.php
+      Notification.php
+database/
+  migrations/
+routes/
+  api.php
+
+⚙️ Tech Stack
+
+Framework: Laravel 11+
+
+Database: MySQL or PostgreSQL
+
+Auth: Laravel Sanctum or Passport
+
+Testing: PHPUnit / Pest
+
+API docs (optional): Swagger / Laravel API Docs
+
+🚀 What This Tests
+Skill	What it Tests
+Authentication	Secure login/logout with tokens
+Eloquent Relationships	One-to-many, many-to-many (Users ↔ Teams, Teams ↔ Tasks)
+API Design	RESTful endpoints and response consistency
+Middleware	Access control (team ownership, membership)
+Validation	Clean input handling
+Testing	Writing automated tests
+Clean Code	Service separation, naming, structure
