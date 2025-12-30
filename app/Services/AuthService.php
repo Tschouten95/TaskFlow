@@ -4,7 +4,6 @@ namespace App\Services;
 
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
-use Laravel\Sanctum\PersonalAccessToken;
 use Illuminate\Validation\ValidationException;
 
 class AuthService
@@ -13,45 +12,41 @@ class AuthService
         string $name,
         string $email,
         string $password
-    ): array
-    {
+    ): array {
         $user = User::create([
-            'name'     => $name,
-            'email'    => $email,
+            'name' => $name,
+            'email' => $email,
             'password' => Hash::make($password),
         ]);
 
         return [
-            'user'  => $user,
-            'token' => $user->createToken('api-token')->plainTextToken
+            'user' => $user,
+            'token' => $user->createToken('api-token')->plainTextToken,
         ];
     }
-
 
     public function login(
         string $email,
         string $password
-    ): array
-    {
+    ): array {
         $user = User::query()
             ->where('email', $email)
             ->first();
 
         if (! $user || ! Hash::check($password, $user->password)) {
             throw ValidationException::withMessages([
-                'email' => ['The provided credentials are incorrect.']
+                'email' => ['The provided credentials are incorrect.'],
             ]);
         }
 
         return [
-            'user'  => $user,
-            'token' => $user->createToken('api-token')->plainTextToken
+            'user' => $user,
+            'token' => $user->createToken('api-token')->plainTextToken,
         ];
     }
 
-
     public function logout(User $user): void
     {
-        $user->tokens()->delete();
+        $user->currentAccessToken()->delete();
     }
 }

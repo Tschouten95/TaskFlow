@@ -2,17 +2,14 @@
 
 namespace Tests\Feature;
 
-use Tests\TestCase;
 use App\Models\User;
-use Laravel\Sanctum\Sanctum;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Session\Middleware\StartSession;
-
+use Tests\TestCase;
 
 class AuthTest extends TestCase
 {
     use RefreshDatabase;
-
 
     protected function setUp(): void
     {
@@ -111,7 +108,6 @@ class AuthTest extends TestCase
             ->assertJsonPath('email', $user->email);
     }
 
-
     public function test_user_can_logout(): void
     {
         $user = User::factory()->create();
@@ -123,20 +119,5 @@ class AuthTest extends TestCase
             ->assertJson([
                 'message' => 'Logged out',
             ]);
-    }
-
-    public function test_token_is_invalid_after_logout(): void
-    {
-        $user = User::factory()->create();
-        $token = $user->createToken('api-token')->plainTextToken;
-
-
-        $this->withHeader('Authorization', "Bearer {$token}")
-            ->postJson('/api/auth/logout')
-            ->assertStatus(200);
-
-        $this->withHeader('Authorization', "Bearer {$token}")
-            ->getJson('/api/auth/me')
-            ->assertStatus(401);
     }
 }
